@@ -1,9 +1,9 @@
 
-module SequentialMult(clk, rst, a, b, product);
+module SequentialMult(clk, rst, a, b, product,done);
 input clk, rst;
 input [3:0] a,b;
-output reg[7:0] product; //reg? or assign outside blocks?
-
+output reg[7:0] product; 
+output reg done;
 parameter s0_idle = 0, s1_multiply = 1, s2_update_result = 2, s3_done = 3;
 
 reg[2:0] PS, NS;
@@ -23,11 +23,13 @@ always@(posedge clk)
     begin
         case(PS)
             s0_idle: begin
+          
                 partial_product <= 8'b0;
                 shift_count <= 0;
                 multiplicand <= {4'b0000, a};
                 operand_bb <= b;
-                NS <= s1_multiply;
+                done <= 0;
+                NS <= s1_multiply;   
             end
             s1_multiply: begin
                 NS <= s2_update_result;
@@ -56,8 +58,10 @@ always@(posedge clk)
                 end
             end
             s3_done: begin
+                done <= 1'b1;
                 NS <= s3_done;
             end
         endcase
     end
+
 endmodule
